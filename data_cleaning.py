@@ -138,12 +138,12 @@ def clean_rpi_optode(filepath, offset=2440678.484, bounds=None, plot_timeseries=
 	op_df = op_df.dropna()
 
 	if plot_timeseries == True:
-		plt.plot(op_df['Julian_Date'], op_df['O2Concentration'])
+		plt.plot(op_df['Julian_Date'], op_df['O2Concentration']*0.2)
 		print op_df.head(2)
 	
 	return op_df
 
-def clean_airmar(filepath, bounds=None, plot_timeseries=False):
+def clean_airmar(filepath, bounds=None, plot_timeseries=False, offset=0.0):
 	'''
 	Clean textfiles logged by the raspberry pi of the airmar data.
 	Inputs:
@@ -159,6 +159,7 @@ def clean_airmar(filepath, bounds=None, plot_timeseries=False):
 		air_df = air_df.append(temp, ignore_index=True)
 
 	air_df = sc.clean_airmar(air_df)
+	air_df.loc[:,'Julian_Date'] = air_df.apply(lambda x: x['Julian_Date']-offset,axis=1)
 
 	#if bounds are present, only grab those bounds
 	if bounds is not None:
@@ -174,7 +175,7 @@ def clean_airmar(filepath, bounds=None, plot_timeseries=False):
 	
 	return air_df
 
-def clean_gga(filepath, bounds=None, plot_timeseries=False):
+def clean_gga(filepath, offset_time = -0.003, bounds=None, plot_timeseries=False):
 	'''
 	Clean textfiles logged by the LGR GGA.
 	Inputs:
@@ -189,8 +190,7 @@ def clean_gga(filepath, bounds=None, plot_timeseries=False):
 		temp.columns = [l.strp(' ') for l in temp.columns]
 		gga_df = gga_df.append(temp, ignore_index=True)
 
-	offset = -0.003
-	gga_df = sc.clean_gga(gga_df, offset)
+	gga_df = sc.clean_gga(gga_df, offset_time)
 	
 	#if bounds are present, only grab those bounds
 	if bounds is not None:
@@ -235,7 +235,7 @@ def clean_pix(filepath, bounds=None, plot_timeseries=False):
 	p_df = p_df.dropna()
 
 	if plot_timeseries == True:
-		plt.plot(p_df['Latitude'], p_df['Longitude'], 'ro')
+		plt.plot(p_df['Latitude'], p_df['Longitude'], 'ro', alpha=0.4)
 		print p_df.head(2)
 
 	return p_df
@@ -306,16 +306,41 @@ if __name__ == '__main__':
 
 
 	###### 06.29.2018
-	save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.29.2018/data/cleaned/'
-	query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.29.2018/data/'
+	# save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.29.2018/data/cleaned/'
+	# query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.29.2018/data/'
+	# ctd_path = ['ctd/rbr_data/rbr_data_data.txt']
+	# rpi_ctd_path = ['ctd/rbr_20180330034916.txt']
+	# rpi_nit_path = ['nitrate/suna_20180330034849.txt', 'nitrate/suna_20180330083032.txt', 'nitrate/suna_20180330083300.txt']
+	# nit_path = ['nitrate/C0000132.CSV']
+	# rpi_op_path = ['op/optode_20180330034739.txt', 'op/optode_20180330082905.txt']
+	# airmar_path = ['airmar/airmar_20180330034652.txt', 'airmar/airmar_20180330082958.txt']
+	# gga_path = ['gga/2018-06-29/gga_2018-06-29_f0002.txt']
+	# pix_path = ['pix/2.BIN.gpx']
+
+	###### 06.30.2018
+	# save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.30.2018/data/cleaned/'
+	# query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.30.2018/data/'
+	# ctd_path = ['ctd/rbr_data/rbr_data_data.txt']
+	# rpi_ctd_path = ['ctd/rbr_20180330093736.txt']
+	# rpi_nit_path = ['nitrate/suna_20180330093830.txt']
+	# # nit_path = ['nitrate/C0000132.CSV']
+	# rpi_op_path = ['op/optode_20180330093807.txt']
+	# airmar_path = ['airmar/airmar_20180330093911.txt']
+	# gga_path = ['gga/2018-06-30/gga_2018-06-30_f0001.txt']
+
+	######## 07.01.2018
+	save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.01.2018/data/cleaned/'
+	query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.01.2018/data/'
 	ctd_path = ['ctd/rbr_data/rbr_data_data.txt']
-	rpi_ctd_path = ['ctd/rbr_20180330034916.txt']
-	rpi_nit_path = ['nitrate/suna_20180330034849.txt', 'nitrate/suna_20180330083032.txt', 'nitrate/suna_20180330083300.txt']
-	nit_path = ['nitrate/C0000132.CSV']
-	rpi_op_path = ['op/optode_20180330034739.txt', 'op/optode_20180330082905.txt']
-	airmar_path = ['airmar/airmar_20180330034652.txt', 'airmar/airmar_20180330082958.txt']
-	gga_path = ['gga/2018-06-29/gga_2018-06-29_f0002.txt']
-	pix_path = ['pix/2.BIN.gpx']
+	rpi_ctd_path = ['ctd/rbr_20180330132604.txt', 'ctd/rbr_20180330132706.txt']
+	rpi_nit_path = ['nitrate/suna_20180330132643.txt']
+	# nit_path = ['nitrate/C0000132.CSV']
+	rpi_op_path = ['op/optode_20180330132615.txt']
+	airmar_path = ['airmar/airmar_20180330132521.txt']
+	gga_path = ['gga/2018-07-01/gga_2018-07-01_f0001.txt']
+	pix_path = ['pix/22.BIN.gpx']
+
+	geo_frame = 'pix'
 
 	save_data = True
 	geo_save_data = True
@@ -329,16 +354,23 @@ if __name__ == '__main__':
 	m = []
 	for p in pix_path:
 		m.append(query_path+p)
-	pix_df = clean_pix(m, bounds=None, plot_timeseries=False)
-	start = np.sort(pix_df['Julian_Date'].values)[0] #2458299.18039
-	end = np.sort(pix_df['Julian_Date'].values)[-1] #2458299.41531
+	pix_df = clean_pix(m, bounds=None, plot_timeseries=True)
+	if geo_frame == 'pix':
+		start = np.sort(pix_df['Julian_Date'].values)[0] #2458299.18039
+		end = np.sort(pix_df['Julian_Date'].values)[-1] #2458299.41531
 
 
 	##### Airmar #####
-	m = []
+	m = [] 
 	for p in airmar_path:
 		m.append(query_path+p)
-	airmar_df = clean_airmar(m, bounds=[start,end], plot_timeseries=False)
+	if geo_frame == 'pix':
+		airmar_df = clean_airmar(m, bounds=None, plot_timeseries=True, offset=0.0)
+	else:
+		airmar_df = clean_airmar(m, bounds=None, plot_timeseries=True, offset=0.0)
+		start = np.sort(airmar_df['Julian_Date'].values)[0] #2458299.18039
+		end = np.sort(airmar_df['Julian_Date'].values)[-1] #2458299.41531
+
 	print start, end
 
 	##### CTD #####
@@ -350,25 +382,27 @@ if __name__ == '__main__':
 	m = []
 	for p in ctd_path:
 		m.append(query_path+p)
-	ctd_df = clean_rbr_ctd(m, bounds=[start,end], plot_timeseries=True)
+	ctd_df = clean_rbr_ctd(m, bounds=[start,end], plot_timeseries=False)
 
 	##### NITRATE #####
 	m = []
 	for p in rpi_nit_path:
 		m.append(query_path+p)
-	rpi_nit_df = clean_rpi_nitrate(m, bounds=[start,end], plot_timeseries=False, day=29, month=6, year=2018)
+	rpi_nit_df = clean_rpi_nitrate(m, bounds=[start,end], plot_timeseries=False, day=1, month=7, year=2018)
 
 	##### OPTODE #####
 	m = []
 	for p in rpi_op_path:
 		m.append(query_path+p)
-	rpi_op_df = clean_rpi_optode(m, offset=2440679.255, bounds=[start,end], plot_timeseries=False)
+	# 06.29.2018 offset: 2440679.255
+	# 06.30.2018 offset: 2440680.11575
+	rpi_op_df = clean_rpi_optode(m, offset=2440680.893, bounds=[start,end], plot_timeseries=False)
 
 	##### GGA #####
 	m = []
 	for p in gga_path:
 		m.append(query_path+p)
-	gga_df = clean_gga(m, bounds=[start,end], plot_timeseries=True)
+	gga_df = clean_gga(m, offset_time=-0.0034, bounds=[start,end], plot_timeseries=False)
 
 	# ##### TDGP #####
 	# # please note! this is not yet completed; pending information from Beckett and William
@@ -389,12 +423,20 @@ if __name__ == '__main__':
 
 	###############################
 	##### Geolocate the Sets ######
-	###############################
-	ctd_geo_df = geo_associate(ctd_df, pix_df, keys=['ctd', 'pix'])
-	# rpi_ctd_geo_df = geo_associate(rpi_ctd_df, rpi_airmar_df, keys=['ctd', 'airmar'])
-	nit_geo_df = geo_associate(rpi_nit_df, pix_df, keys=['nit', 'pix'])
-	op_geo_df = geo_associate(rpi_op_df, pix_df, keys=['op', 'pix'])
-	gga_geo_df = geo_associate(gga_df, pix_df, keys=['gga', 'pix'])
+	# ###############################
+	if geo_frame == 'pix':
+		ctd_geo_df = geo_associate(ctd_df, pix_df, keys=['ctd', 'pix'])
+		# rpi_ctd_geo_df = geo_associate(rpi_ctd_df, rpi_airmar_df, keys=['ctd', 'airmar'])
+		nit_geo_df = geo_associate(rpi_nit_df, pix_df, keys=['nit', 'pix'])
+		op_geo_df = geo_associate(rpi_op_df, pix_df, keys=['op', 'pix'])
+		gga_geo_df = geo_associate(gga_df, pix_df, keys=['gga', 'pix'])
+	else:
+		ctd_geo_df = geo_associate(ctd_df, airmar_df, keys=['ctd', 'airmar'])
+		# rpi_ctd_geo_df = geo_associate(rpi_ctd_df, rpi_airmar_df, keys=['ctd', 'airmar'])
+		nit_geo_df = geo_associate(rpi_nit_df, airmar_df, keys=['nit', 'airmar'])
+		op_geo_df = geo_associate(rpi_op_df, airmar_df, keys=['op', 'airmar'])
+		gga_geo_df = geo_associate(gga_df, airmar_df, keys=['gga', 'airmar'])
+
 
 	if geo_save_data == True:
 		ctd_geo_df.to_csv(save_path+'geo_rbr.csv')
@@ -406,7 +448,11 @@ if __name__ == '__main__':
 	###############################
 	##### Create a Common Frame ###
 	###############################
-	all_df = interp_all([ctd_df, rpi_nit_df, rpi_op_df, airmar_df, pix_df, gga_df], keys=['ctd', 'nit', 'op', 'airmar', 'pix', 'gga'], ind=4)
+	if geo_frame == 'pix':
+		indx = 4
+	else:
+		indx = 3
+	all_df = interp_all([ctd_df, rpi_nit_df, rpi_op_df, airmar_df, pix_df, gga_df], keys=['ctd', 'nit', 'op', 'airmar', 'pix', 'gga'], ind=indx)
 
 	if save_all == True:
 		all_df.to_csv(save_path+'full_interp.csv')

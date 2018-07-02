@@ -48,12 +48,12 @@ def global_time_column(df):
     @input: dataframe
     @output: none; dataframe rewritten with Julian_Data column
     '''
-    df.loc[:,'Julian_Date'] = df.apply(lambda row: calculate_julian_day(row['Year'], 
-                                                                        row['Month'], 
-                                                                        row['Day'], 
-                                                                        float(row['Hour']), 
-                                                                        float(row['Minute']), 
-                                                                        float(row['Second'])),axis=1)
+    df.loc[:,'Julian_Date'] = df.apply(lambda row: calculate_julian_day(int(row.Year), 
+                                                                        int(row.Month), 
+                                                                        int(row.Day), 
+                                                                        float(row.Hour), 
+                                                                        float(row.Minute), 
+                                                                        float(row.Second)),axis=1)
     return df
 
 def handle_ctd_time(data):
@@ -94,21 +94,21 @@ def handle_gga_time(data):
     seconds_elapsed(data)
     return
 
-def handle_airmar_time(data):
+def handle_airmar_time(dat):
     '''
     Handle seperating the timestamp object into individual data columns
     @input: dataframe
     @output: none; dataframe rewritten in processing
     '''
-    data.loc[:,'Year'] = data.apply(lambda x : int(x['year']),axis=1)
-    data.loc[:, 'Month'] = data.apply(lambda x : int(x['month']),axis=1)
-    data.loc[:, 'Day'] = data.apply(lambda x : int(x['day']),axis=1)
-    data.loc[:,'Hour'] = data.apply(lambda x : float(str(x['TOD'])[0:2]),axis=1)
-    data.loc[:,'Minute'] = data.apply(lambda x : float(str(x['TOD'])[2:4]),axis=1)
-    data.loc[:,'Second'] = data.apply(lambda x : float(str(x['TOD'])[4:]),axis=1)
-    data = global_time_column(data)
-    seconds_elapsed(data)
-    return
+    dat.loc[:,'Year'] = dat.apply(lambda x : int(x['year']),axis=1)
+    dat.loc[:, 'Month'] = dat.apply(lambda x : int(x['month']),axis=1)
+    dat.loc[:, 'Day'] = dat.apply(lambda x : int(x['day']),axis=1)
+    dat.loc[:,'Hour'] = dat.apply(lambda x : float(str(x['TOD'])[0:2]),axis=1)
+    dat.loc[:,'Minute'] = dat.apply(lambda x : float(str(x['TOD'])[2:4]),axis=1)
+    dat.loc[:,'Second'] = dat.apply(lambda x : float(str(x['TOD'])[4:]),axis=1)
+    dat = global_time_column(dat)
+    # seconds_elapsed(data)
+    return dat
 
 def handle_dge_time(data):
     '''
@@ -231,7 +231,7 @@ def clean_airmar(data, min_time=None, max_time=None):
     @output: writes to dataframe
     '''
     data = data.dropna()
-    handle_airmar_time(data)
+    data = handle_airmar_time(data)
     # data.loc[:,'posixtime'] = data.apply(lambda x : x['posixtime']-14700.0, axis=1)
     # data.loc[:,'Julian_Date'] = data.apply(lambda x : x.posixtime / 86400.0 + 2440587.5 - 0.0416600001, axis=1)
 
