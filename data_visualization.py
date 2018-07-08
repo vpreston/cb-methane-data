@@ -14,7 +14,7 @@ from mpl_toolkits.basemap import Basemap
 import mpl_toolkits.axisartist as AA
 import pandas as pd
 
-map = Basemap(llcrnrlon=-105.05,llcrnrlat=69.1035,urcrnrlon=-104.997,urcrnrlat=69.13,
+map = Basemap(llcrnrlon=-105.05,llcrnrlat=69.100,urcrnrlon=-104.997,urcrnrlat=69.13,
              resolution='i', projection='cyl')
 
 def viz_3d(x, y, z, c, label, title, vmin=None, vmax=None):
@@ -33,6 +33,7 @@ def viz_3d(x, y, z, c, label, title, vmin=None, vmax=None):
     ax.set_xlabel('Latitude', fontsize=18)
     ax.set_ylabel('Longitude', fontsize=18)
     ax.set_zlabel('Depth', fontsize=18)
+    # ax.set_zlim(-10.0, 0.5)
     plt.savefig(label+'_3dviz.png')
 
 def viz_cross(x1, x2, y, c, label, title, vmin=None, vmax=None):
@@ -49,9 +50,13 @@ def viz_cross(x1, x2, y, c, label, title, vmin=None, vmax=None):
     points = ax[0].scatter(x1,y, c=c, s=10, alpha=0.5, lw=0, cmap=cmap, vmin=vmin, vmax=vmax)
     ax[0].set_ylabel('Depth', fontsize=18)
     ax[0].set_xlabel('Longitude', fontsize=18)
+    ax[0].plot(x1, x1*0.-2.0,'r')
+    ax[0].set_ylim(-10.0, 0.5)
     
     points = ax[1].scatter(x2,y, c=c, s=10, alpha=0.5, lw=0, cmap=cmap, vmin=vmin, vmax=vmax)
     ax[1].set_xlabel('Latitude', fontsize=18)
+    ax[1].plot(x2, x2*0.-2.0,'r')
+    ax[1].set_ylim(-10.0, 0.5)
     
     cbar = fig.colorbar(points)
     cbar.set_label(label)
@@ -105,42 +110,52 @@ def viz_layers(df, target, scale, label, title, geo_frame='pix', geo_labels=['Lo
     plt.savefig(label+'_layered_aerial.png')
 
 
-def create_3d_viz(df, insts, labels, geo_frame='pix', geo_labels=['Longitude', 'Latitude']):
-	for inst, l in zip(insts, labels):
+def create_3d_viz(df, insts, labels, geo_frame='pix', geo_labels=['Longitude', 'Latitude'], lims=[None, None]):
+	for inst, l, lim in zip(insts, labels, lims):
 		x = df[geo_frame][geo_labels[0]]
 		y = df[geo_frame][geo_labels[1]]
 		z = -df['ctd']['Depth']
 		c = df[inst][l]
 		label = l
 		title = l
-		viz_3d(x, y, z, c, label, title)
+		viz_3d(x, y, z, c, label, title, vmin=lim[0], vmax=lim[1])
 
-def create_cross_viz(df, insts, labels, geo_frame='pix', geo_labels=['Longitude', 'Latitude']):
-	for inst, l in zip(insts, labels):
+def create_cross_viz(df, insts, labels, geo_frame='pix', geo_labels=['Longitude', 'Latitude'], lims=[None, None]):
+	for inst, l, lim in zip(insts, labels, lims):
 		x1 = df[geo_frame][geo_labels[0]]
 		x2 = df[geo_frame][geo_labels[1]]
 		y = -df['ctd']['Depth']
 		c = df[inst][l]
 		label = l
 		title = l
-		viz_cross(x1, x2, y, c, label, title)
+		viz_cross(x1, x2, y, c, label, title, vmin=lim[0], vmax=lim[1])
 
-def create_aerial_overview(df, insts, labels, depth=True, geo_frame='pix', geo_labels=['Longitude', 'Latitude']):
-	for inst, l in zip(insts, labels):
+def create_aerial_overview(df, insts, labels, depth=True, geo_frame='pix', geo_labels=['Longitude', 'Latitude'], lims=[None, None]):
+	for inst, l, lim in zip(insts, labels, lims):
 		x1 = df[geo_frame][geo_labels[0]]
 		x2 = df[geo_frame][geo_labels[1]]
 		c = df[inst][l]
 		label = l
 		title = l
 
-		viz_top(x1, x2, c, label, title)
+		viz_top(x1, x2, c, label, title, vmin=lim[0], vmax=lim[1])
 		if depth == True:
-			viz_layers(df, [inst, l], 0.5, label, title, geo_frame, geo_labels)
+			viz_layers(df, [inst, l], 0.25, label, title, geo_frame, geo_labels, vmin=lim[0], vmax=lim[1])
 
 
 
 if __name__ == '__main__':
 	# import the data of interest
+	#6.28.2018
+	# base_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.28.2018/data/cleaned/'
+	# all_data = 'full_interp.csv'
+	# ctd_geo = 'geo_rbr.csv'
+	# nit_geo = 'geo_nit.csv'
+	# op_geo = 'geo_op.csv'
+	# gga_geo = 'geo_gga.csv'
+	# geo_frame = 'airmar'
+	# geo_labels = ['lon_mod', 'lat_mod']
+
 	#6.29.2018
 	# base_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.29.2018/data/cleaned/'
 	# all_data = 'full_interp.csv'
@@ -148,6 +163,8 @@ if __name__ == '__main__':
 	# nit_geo = 'geo_nit.csv'
 	# op_geo = 'geo_op.csv'
 	# gga_geo = 'geo_gga.csv'
+	# geo_frame = 'pix'
+	# geo_labels = ['Longitude', 'Latitude']
 
 	#06.30.2018
 	# base_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/06.30.2018/data/cleaned/'
@@ -160,17 +177,36 @@ if __name__ == '__main__':
 	# geo_labels = ['lon_mod', 'lat_mod']
 
 	#07.01.2018
-	base_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.01.2018/data/cleaned/'
+	# base_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.01.2018/data/cleaned/'
+	# all_data = 'full_interp.csv'
+	# ctd_geo = 'geo_rbr.csv'
+	# nit_geo = 'geo_nit.csv'
+	# op_geo = 'geo_op.csv'
+	# gga_geo = 'geo_gga.csv'
+	# # geo_frame = 'airmar'
+	# # geo_labels = ['lon_mod', 'lat_mod']
+	# geo_frame = 'pix'
+	# geo_labels = ['Longitude', 'Latitude']
+
+	#07.02.2019
+	# base_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.02.2018/data/cleaned/'
+	# all_data = 'full_interp.csv'
+	# ctd_geo = 'geo_rbr.csv'
+	# nit_geo = 'geo_nit.csv'
+	# op_geo = 'geo_op.csv'
+	# gga_geo = 'geo_gga.csv'
+	# geo_frame = 'airmar'
+	# geo_labels = ['lon_mod', 'lat_mod']
+
+	#07.04.2019
+	base_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.04.2018/data/cleaned/'
 	all_data = 'full_interp.csv'
 	ctd_geo = 'geo_rbr.csv'
 	nit_geo = 'geo_nit.csv'
 	op_geo = 'geo_op.csv'
 	gga_geo = 'geo_gga.csv'
-	# geo_frame = 'airmar'
-	# geo_labels = ['lon_mod', 'lat_mod']
-	geo_frame = 'pix'
-	geo_labels = ['Longitude', 'Latitude']
-
+	geo_frame = 'airmar'
+	geo_labels = ['lon_mod', 'lat_mod']
 
 	# make the dataframes
 	all_df = pd.read_table(base_path+all_data, delimiter=',', header=[0,1])
@@ -180,27 +216,29 @@ if __name__ == '__main__':
 	op_df = pd.read_table(base_path+op_geo, delimiter=',', header=[0,1])
 
 	###### 3D PLOTS ######
-	insts = ['ctd', 'gga', 'gga', 'ctd']
-	labels = ['Temperature', 'CH4_ppm_adjusted', 'CO2_ppm_adjusted', 'Salinity']
+	insts = ['gga', 'gga', 'ctd', 'ctd']
+	labels = ['CO2_ppm_adjusted', 'CH4_ppm_adjusted', 'Salinity', 'Temperature']
+	limits = [[130.,490.], [8.,47.], [0.,28.], [0.,7.]]
 
 	# Lat, Lon, Depth, Prop
-	create_3d_viz(all_df, insts, labels, geo_frame=geo_frame, geo_labels=geo_labels)
+	create_3d_viz(all_df, insts, labels, geo_frame=geo_frame, geo_labels=geo_labels, lims=limits)
 
 	# Cross Sections
-	create_cross_viz(all_df, insts, labels, geo_frame=geo_frame, geo_labels=geo_labels)
+	create_cross_viz(all_df, insts, labels, geo_frame=geo_frame, geo_labels=geo_labels, lims=limits)
 
 	# Aerial Slices
-	create_aerial_overview(all_df, insts, labels, geo_frame=geo_frame, geo_labels=geo_labels)
+	create_aerial_overview(all_df, insts, labels, geo_frame=geo_frame, geo_labels=geo_labels, lims=limits)
 
 	###### 2D PLOTS ######
 	insts = ['op']
 	labels = ['O2Concentration']
-	create_aerial_overview(op_df, insts, labels, depth=False, geo_frame=geo_frame, geo_labels=geo_labels)
+	limits = [[340., 370.]]
+	create_aerial_overview(op_df, insts, labels, depth=False, geo_frame=geo_frame, geo_labels=geo_labels, lims=limits)
 
 	insts = ['nit']
 	labels = ['data']
-	create_aerial_overview(nit_df, insts, labels, depth=False, geo_frame=geo_frame, geo_labels=geo_labels)
-
+	limits = [[0., 5.]]
+	create_aerial_overview(nit_df, insts, labels, depth=False, geo_frame=geo_frame, geo_labels=geo_labels, lims=limits)
 
 
 	plt.show()

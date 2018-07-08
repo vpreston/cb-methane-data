@@ -38,6 +38,7 @@ def clean_rbr_ctd(filepath, bounds=None, plot_timeseries=False):
 
 	if plot_timeseries == True:
 		plt.plot(ctd_df['Julian_Date'], ctd_df['Salinity'])
+		plt.plot(ctd_df['Julian_Date'], ctd_df['Depth'])
 		print ctd_df.head(2)
 
 	return ctd_df
@@ -108,7 +109,7 @@ def clean_rpi_nitrate(filepath, bounds=None, plot_timeseries=False, day=29, mont
 	nit_df = nit_df.dropna()
 
 	if plot_timeseries == True:
-		plt.plot(nit_df['Julian_Date'], nit_df['data'])
+		plt.plot(nit_df['Julian_Date'], nit_df['data'].values/np.nanmax(nit_df['data'].values))
 		print nit_df.head(2)
 
 	return nit_df
@@ -170,7 +171,7 @@ def clean_airmar(filepath, bounds=None, plot_timeseries=False, offset=0.0):
 	air_df = air_df.drop(air_df[air_df.lat == 0.].index)
 
 	if plot_timeseries == True:
-		plt.plot(air_df['lat_mod'], air_df['lon_mod'],'g*')
+		plt.plot(air_df['Julian_Date'], air_df['lon_mod'],'g*')
 		print air_df.head(2)
 	
 	return air_df
@@ -187,7 +188,7 @@ def clean_gga(filepath, offset_time = -0.003, bounds=None, plot_timeseries=False
 	gga_df.columns = [m.strip(' ') for m in gga_df.columns]
 	for m in filepath[1:]:
 		temp = pd.read_table(m, delimiter=',', header=1, engine='c')
-		temp.columns = [l.strp(' ') for l in temp.columns]
+		temp.columns = [l.strip(' ') for l in temp.columns]
 		gga_df = gga_df.append(temp, ignore_index=True)
 
 	gga_df = sc.clean_gga(gga_df, offset_time)
@@ -198,8 +199,10 @@ def clean_gga(filepath, offset_time = -0.003, bounds=None, plot_timeseries=False
 		gga_df = gga_df.drop(gga_df[gga_df.Julian_Date >= (bounds[1])].index)
 
 	gga_df = gga_df.dropna()
+	gga_df = gga_df.drop(gga_df[gga_df.CH4_ppm_adjusted <= 0.0].index)
 
 	if plot_timeseries == True:
+		plt.plot(gga_df['Julian_Date_cor'], gga_df['CO2_ppm_adjusted'])
 		plt.plot(gga_df['Julian_Date_cor'], gga_df['CH4_ppm_adjusted'])
 		print gga_df.head(2)
 	
@@ -329,35 +332,73 @@ if __name__ == '__main__':
 	# gga_path = ['gga/2018-06-30/gga_2018-06-30_f0001.txt']
 
 	######## 07.01.2018
-	save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.01.2018/data/cleaned/'
-	query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.01.2018/data/'
-	ctd_path = ['ctd/rbr_data/rbr_data_data.txt']
-	rpi_ctd_path = ['ctd/rbr_20180330132604.txt', 'ctd/rbr_20180330132706.txt']
-	rpi_nit_path = ['nitrate/suna_20180330132643.txt']
-	# nit_path = ['nitrate/C0000132.CSV']
-	rpi_op_path = ['op/optode_20180330132615.txt']
-	airmar_path = ['airmar/airmar_20180330132521.txt']
-	gga_path = ['gga/2018-07-01/gga_2018-07-01_f0001.txt']
-	pix_path = ['pix/22.BIN.gpx']
+	# save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.01.2018/data/cleaned/'
+	# query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.01.2018/data/'
+	# ctd_path = ['ctd/rbr_data/rbr_data_data.txt']
+	# rpi_ctd_path = ['ctd/rbr_20180330132604.txt', 'ctd/rbr_20180330132706.txt']
+	# rpi_nit_path = ['nitrate/suna_20180330132643.txt']
+	# # nit_path = ['nitrate/C0000132.CSV']
+	# rpi_op_path = ['op/optode_20180330132615.txt']
+	# airmar_path = ['airmar/airmar_20180330132521.txt']
+	# gga_path = ['gga/2018-07-01/gga_2018-07-01_f0001.txt']
+	# pix_path = ['pix/22.BIN.gpx']
+	# geo_frame = 'pix'
 
-	geo_frame = 'pix'
+	########## 07.02.2018
+	# save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.02.2018/data/cleaned/'
+	# query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.02.2018/data/'
+	# ctd_path = ['ctd/rbr_data/rbr_data_data.txt']
+	# # rpi_ctd_path = ['ctd/rbr_20180330132604.txt', 'ctd/rbr_20180330132706.txt']
+	# rpi_nit_path = ['nitrate/suna_20180330172709.txt']
+	# # nit_path = ['nitrate/C0000132.CSV']
+	# rpi_op_path = ['op/optode_20180330172646.txt']
+	# airmar_path = ['airmar/airmar_20180330172728.txt']
+	# gga_path = ['gga/2018-07-02/gga_2018-07-02_f0001.txt','gga/2018-07-02/gga_2018-07-02_f0002.txt']
+	# pix_path = ['pix/27.BIN.gpx']
+	# geo_frame = 'airmar'
 
-	save_data = True
-	geo_save_data = True
-	save_all = True
+	########## 07.03.2018
+	# save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.03.2018/data/cleaned/'
+	# query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.03.2018/data/'
+	# ctd_path = ['ctd/rbr_data/rbr_data_data.txt']
+	# # rpi_ctd_path = ['ctd/rbr_20180330132604.txt', 'ctd/rbr_20180330132706.txt']
+	# # rpi_nit_path = ['nitrate/suna_20180330172709.txt']
+	# # nit_path = ['nitrate/C0000132.CSV']
+	# # rpi_op_path = ['op/optode_20180330172646.txt']
+	# # airmar_path = ['airmar/airmar_20180330172728.txt']
+	# gga_path = ['gga/2018-07-03/gga_2018-07-03_f0001.txt','gga/2018-07-03/gga_2018-07-03_f0002.txt','gga/2018-07-03/gga_2018-07-03_f0003.txt','gga/2018-07-03/gga_2018-07-03_f0004.txt','gga/2018-07-03/gga_2018-07-03_f0005.txt','gga/2018-07-04/gga_2018-07-04_f0000.txt','gga/2018-07-04/gga_2018-07-04_f0001.txt','gga/2018-07-04/gga_2018-07-04_f0002.txt']
+	# # pix_path = ['pix/27.BIN.gpx']
+	# # geo_frame = 'airmar'
+
+	########## 07.04.2018
+	# save_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.04.2018/data/cleaned/'
+	# query_path = '/media/vpreston/My Passport/Cambridge-Bay-06.2018/07.04.2018/data/'
+	# ctd_path = ['ctd/rbr_data/rbr_data_data.txt']
+	# # # rpi_ctd_path = ['ctd/rbr_20180330132604.txt', 'ctd/rbr_20180330132706.txt']
+	# rpi_nit_path = ['nitrate/suna_20180330223109.txt']
+	# # # nit_path = ['nitrate/C0000132.CSV']
+	# rpi_op_path = ['op/optode_20180330223020.txt']
+	# airmar_path = ['airmar/airmar_20180330223042.txt']
+	# gga_path = ['gga/2018-07-04/gga_2018-07-04_f0003.txt','gga/2018-07-04/gga_2018-07-04_f0004.txt']
+	# # # pix_path = ['pix/27.BIN.gpx']
+	# geo_frame = 'airmar'
+
+	save_data = False
+	geo_save_data = False
+	save_all = False
 
 	###############################
 	##### Generate Dataframes #####
 	###############################
 
 	##### PIXHAWK #####
-	m = []
-	for p in pix_path:
-		m.append(query_path+p)
-	pix_df = clean_pix(m, bounds=None, plot_timeseries=True)
-	if geo_frame == 'pix':
-		start = np.sort(pix_df['Julian_Date'].values)[0] #2458299.18039
-		end = np.sort(pix_df['Julian_Date'].values)[-1] #2458299.41531
+	# m = []
+	# for p in pix_path:
+	# 	m.append(query_path+p)
+	# pix_df = clean_pix(m, bounds=None, plot_timeseries=False)
+	# if geo_frame == 'pix':
+	# 	start = np.sort(pix_df['Julian_Date'].values)[0] #2458299.18039
+	# 	end = np.sort(pix_df['Julian_Date'].values)[-1] #2458299.41531
 
 
 	##### Airmar #####
@@ -365,13 +406,24 @@ if __name__ == '__main__':
 	for p in airmar_path:
 		m.append(query_path+p)
 	if geo_frame == 'pix':
-		airmar_df = clean_airmar(m, bounds=None, plot_timeseries=True, offset=0.0)
+		airmar_df = clean_airmar(m, bounds=None, plot_timeseries=False, offset=0.0)
 	else:
-		airmar_df = clean_airmar(m, bounds=None, plot_timeseries=True, offset=0.0)
+		airmar_df = clean_airmar(m, bounds=None, plot_timeseries=False, offset=0.0)
 		start = np.sort(airmar_df['Julian_Date'].values)[0] #2458299.18039
 		end = np.sort(airmar_df['Julian_Date'].values)[-1] #2458299.41531
 
 	print start, end
+
+	##### GGA #####
+	m = []
+	for p in gga_path:
+		m.append(query_path+p)
+	gga_df = clean_gga(m, offset_time=-0.0034, bounds=None, plot_timeseries=True)
+	temp_end = np.sort(gga_df['Julian_Date'].values)[-1]
+	# if temp_end < end:
+	# 	end = temp_end
+	# 	airmar_df = airmar_df.drop(airmar_df[airmar_df.Julian_Date >= end].index)
+	# 	pix_df = pix_df.drop(pix_df[pix_df.Julian_Date >= end].index)
 
 	##### CTD #####
 	# m = []
@@ -382,13 +434,13 @@ if __name__ == '__main__':
 	m = []
 	for p in ctd_path:
 		m.append(query_path+p)
-	ctd_df = clean_rbr_ctd(m, bounds=[start,end], plot_timeseries=False)
+	ctd_df = clean_rbr_ctd(m, bounds=[start,end], plot_timeseries=True)
 
 	##### NITRATE #####
 	m = []
 	for p in rpi_nit_path:
 		m.append(query_path+p)
-	rpi_nit_df = clean_rpi_nitrate(m, bounds=[start,end], plot_timeseries=False, day=1, month=7, year=2018)
+	rpi_nit_df = clean_rpi_nitrate(m, bounds=[start,end], plot_timeseries=False, day=4, month=7, year=2018)
 
 	##### OPTODE #####
 	m = []
@@ -396,13 +448,9 @@ if __name__ == '__main__':
 		m.append(query_path+p)
 	# 06.29.2018 offset: 2440679.255
 	# 06.30.2018 offset: 2440680.11575
-	rpi_op_df = clean_rpi_optode(m, offset=2440680.893, bounds=[start,end], plot_timeseries=False)
-
-	##### GGA #####
-	m = []
-	for p in gga_path:
-		m.append(query_path+p)
-	gga_df = clean_gga(m, offset_time=-0.0034, bounds=[start,end], plot_timeseries=False)
+	# 07.01.2018 offset: 2440680.893
+	# 07.02.2018 offset: 2440681.650
+	rpi_op_df = clean_rpi_optode(m, offset=2440683.486, bounds=[start,end], plot_timeseries=True)
 
 	# ##### TDGP #####
 	# # please note! this is not yet completed; pending information from Beckett and William
@@ -419,7 +467,7 @@ if __name__ == '__main__':
 		rpi_op_df.to_csv(save_path+'op.csv')
 		airmar_df.to_csv(save_path+'airmar.csv')
 		gga_df.to_csv(save_path+'gga.csv')
-		pix_df.to_csv(save_path+'pix.csv')
+		# pix_df.to_csv(save_path+'pix.csv')
 
 	###############################
 	##### Geolocate the Sets ######
@@ -448,14 +496,25 @@ if __name__ == '__main__':
 	###############################
 	##### Create a Common Frame ###
 	###############################
-	if geo_frame == 'pix':
-		indx = 4
-	else:
-		indx = 3
-	all_df = interp_all([ctd_df, rpi_nit_df, rpi_op_df, airmar_df, pix_df, gga_df], keys=['ctd', 'nit', 'op', 'airmar', 'pix', 'gga'], ind=indx)
+	# if geo_frame == 'pix':
+	# 	indx = 4
+	# else:
+	# 	indx = 3
+	# all_df = interp_all([ctd_df, rpi_nit_df, rpi_op_df, airmar_df, pix_df, gga_df], keys=['ctd', 'nit', 'op', 'airmar', 'pix', 'gga'], ind=indx)
+
+	# all_df = interp_all([ctd_df, gga_df], keys=['ctd', 'gga'], ind=0)
+	# all_df = all_df.drop(all_df[all_df.ctd.Depth <= 0.0].index)
+	# all_df = all_df.drop(all_df[all_df.gga.CH4_ppm_adjusted >= 30.].index)
+
+	all_df = interp_all([ctd_df, rpi_nit_df, rpi_op_df, airmar_df, gga_df], keys=['ctd', 'nit', 'op', 'airmar', 'gga'], ind=3)
 
 	if save_all == True:
 		all_df.to_csv(save_path+'full_interp.csv')
+
+	# plt.figure()
+	# plt.plot(all_df.index, all_df['ctd']['Depth'])
+	# plt.plot(all_df.index, all_df['gga']['CH4_ppm_adjusted'])
+
 
 
 	plt.show()
